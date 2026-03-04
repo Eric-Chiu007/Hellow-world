@@ -1,0 +1,1675 @@
+<!doctype html>
+<html lang="zh-TW" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World 賽博龐克</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    /* === 基礎設定 === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+      background: #0a0e27;
+    }
+
+    /* === 賽博龐克背景動畫 === */
+    .gradient-bg {
+      background: linear-gradient(135deg, #0a0e27 0%, #16213e 25%, #0f3460 50%, #16213e 75%, #0a0e27 100%);
+      background-size: 400% 400%;
+      animation: cyberpunkShift 20s ease infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-bg::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 255, 255, 0.03),
+          rgba(0, 255, 255, 0.03) 1px,
+          transparent 1px,
+          transparent 2px
+        );
+      pointer-events: none;
+      animation: scanlines 8s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes cyberpunkShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(10px); }
+    }
+
+    /* === 浮動霓虹粒子 === */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: floatBubble 8s ease-in-out infinite;
+      box-shadow: 0 0 20px currentColor, inset 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+
+    @keyframes floatBubble {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(180deg); }
+    }
+
+    /* === 主標題動畫 === */
+    .hello-text {
+      animation: glitchText 0.8s ease-out, flickerGlow 3s ease-in-out infinite;
+      animation-delay: 0s, 0.8s;
+      text-shadow: 
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 30px #ff00ff,
+        0 0 40px #ff00ff,
+        0 0 50px #0088ff;
+      letter-spacing: 2px;
+    }
+
+    @keyframes glitchText {
+      0% { transform: translate(0); opacity: 0; }
+      50% { transform: translate(-3px, 3px); }
+      100% { transform: translate(0); opacity: 1; }
+    }
+
+    @keyframes flickerGlow {
+      0%, 100% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #ff00ff; }
+      50% { text-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff, 0 0 20px #0088ff; }
+    }
+
+    /* === 賽博龐克卡片效果 === */
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid #00ffff;
+      background: rgba(16, 52, 96, 0.6);
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.1),
+        0 0 40px rgba(255, 0, 255, 0.1);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-8px);
+      border-color: #ff00ff;
+      box-shadow: 
+        0 0 30px rgba(255, 0, 255, 0.5),
+        inset 0 0 30px rgba(0, 255, 255, 0.2),
+        0 0 60px rgba(255, 0, 255, 0.3);
+    }
+
+    /* === 霓虹按鈕效果 === */
+    .lang-btn {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #00ffff;
+      background: rgba(0, 255, 255, 0.1);
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .lang-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(0, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
+    .lang-btn:hover::before {
+      width: 200%;
+      height: 200%;
+    }
+
+    .lang-btn:hover {
+      border-color: #ff00ff;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 10px rgba(0, 255, 255, 0.2);
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+    }
+
+    .lang-btn.active {
+      transform: scale(1.1);
+      border-color: #ff00ff;
+      background: rgba(255, 0, 255, 0.2);
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), inset 0 0 15px rgba(255, 0, 255, 0.3);
+      color: #ff00ff;
+      text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
+    }
+
+    /* === 功能按鈕樣式 === */
+    .feature-btn {
+      transition: all 0.3s ease;
+      border: 2px solid;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+
+    .feature-btn:nth-child(1) {
+      border-color: #ff0080;
+      color: #ff0080;
+      box-shadow: 0 0 15px rgba(255, 0, 128, 0.3), inset 0 0 10px rgba(255, 0, 128, 0.1);
+      text-shadow: 0 0 10px #ff0080;
+    }
+
+    .feature-btn:nth-child(2) {
+      border-color: #00ffff;
+      color: #00ffff;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .feature-btn:nth-child(3) {
+      border-color: #ffff00;
+      color: #ffff00;
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.3), inset 0 0 10px rgba(255, 255, 0, 0.1);
+      text-shadow: 0 0 10px #ffff00;
+    }
+
+    .feature-btn:nth-child(4) {
+      border-color: #00ff00;
+      color: #00ff00;
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.3), inset 0 0 10px rgba(0, 255, 0, 0.1);
+      text-shadow: 0 0 10px #00ff00;
+    }
+
+    .feature-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .feature-btn:active {
+      transform: translateY(0);
+    }
+
+    /* === 通知提示樣式 === */
+    .toast {
+      animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+      border: 2px solid #00ffff;
+      background: rgba(10, 14, 39, 0.95);
+      color: #00ffff;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      text-shadow: 0 0 5px #00ffff;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    /* === 星星閃爍 === */
+    .star {
+      animation: cyberpunkTwinkle 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 10px #ff00ff);
+    }
+
+    @keyframes cyberpunkTwinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+    }
+
+    /* === 計數器數字動畫 === */
+    .counter-num {
+      transition: all 0.3s ease;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+
+    .counter-num.bump {
+      animation: bump 0.3s ease;
+    }
+
+    @keyframes bump {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    /* === 統計區背景 === */
+    .stats-box {
+      border: 2px solid #00ffff;
+      background: rgba(0, 255, 255, 0.05);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2), inset 0 0 15px rgba(0, 255, 255, 0.1);
+    }
+
+    /* === 趣味知識背景 === */
+    .fact-box {
+      border: 2px solid #00ff00;
+      background: rgba(0, 255, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.2), inset 0 0 15px rgba(0, 255, 0, 0.1);
+      color: #00ff00;
+      text-shadow: 0 0 5px #00ff00;
+    }
+
+    /* === 文字基礎樣式 === */
+    .neon-text {
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+    }
+
+    .relative-z {
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+ </head>
+ <body class="h-full w-full gradient-bg"><!-- 浮動裝飾粒子 -->
+  <div id="bubbles-container" class="fixed inset-0 pointer-events-none overflow-hidden"></div><!-- 主容器 -->
+  <main class="relative-z min-h-full w-full flex flex-col items-center justify-center p-4 sm:p-8 overflow-auto"><!-- 主卡片 -->
+   <div class="card-hover bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-10 max-w-2xl w-full"><!-- 頂部裝飾 -->
+    <div class="flex justify-center gap-2 mb-6"><span class="star text-2xl" style="animation-delay: 0s;">⚡</span> <span class="star text-2xl" style="animation-delay: 0.3s;">💻</span> <span class="star text-2xl" style="animation-delay: 0.6s;">⚡</span>
+    </div><!-- 主標題 -->
+    <h1 id="hello-title" class="hello-text text-4xl sm:text-6xl font-extrabold text-center mb-4 neon-text">你好，世界！</h1><!-- 個人化問候 -->
+    <p id="greeting-text" class="text-center text-cyan-300 text-lg mb-6"><span class="inline-block text-xl">⚡</span> <span id="personal-greeting">歡迎進入數位世界</span> <span class="inline-block text-xl">⚡</span></p><!-- 語言選擇區 -->
+    <div class="mb-8">
+     <p class="text-center text-cyan-400 text-sm mb-3 neon-text" id="select-lang-text">選擇你的語言</p>
+     <div id="lang-buttons" class="flex flex-wrap justify-center gap-2 sm:gap-3"><!-- 語言按鈕由 JavaScript 動態生成 -->
+     </div>
+    </div><!-- 功能區 -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"><button onclick="speakHello()" class="feature-btn rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">🔊</span> <span class="text-xs font-semibold" id="btn-speak">語音播放</span> </button> <button onclick="copyToClipboard()" class="feature-btn rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">📋</span> <span class="text-xs font-semibold" id="btn-copy">複製文字</span> </button> <button onclick="changeTheme()" class="feature-btn rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">🎨</span> <span class="text-xs font-semibold" id="btn-theme">更換主題</span> </button> <button onclick="showRandomFact()" class="feature-btn rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">💡</span> <span class="text-xs font-semibold" id="btn-fact">趣味知識</span> </button>
+    </div><!-- 統計區 -->
+    <div class="stats-box rounded-2xl p-4 mb-6">
+     <div class="grid grid-cols-3 gap-4 text-center">
+      <div>
+       <p id="counter-langs" class="counter-num text-2xl sm:text-3xl">12</p>
+       <p class="text-xs text-cyan-400" id="stat-langs">支援語言</p>
+      </div>
+      <div>
+       <p id="counter-clicks" class="counter-num text-2xl sm:text-3xl">0</p>
+       <p class="text-xs text-cyan-400" id="stat-clicks">點擊次數</p>
+      </div>
+      <div>
+       <p id="counter-time" class="counter-num text-2xl sm:text-3xl">0</p>
+       <p class="text-xs text-cyan-400" id="stat-time">停留秒數</p>
+      </div>
+     </div>
+    </div><!-- 趣味知識顯示區 -->
+    <div id="fact-display" class="fact-box hidden rounded-xl p-4 mb-6">
+     <p class="text-sm" id="fact-text"></p>
+    </div><!-- 底部資訊 -->
+    <div class="text-center">
+     <p class="text-cyan-400 text-sm neon-text"><span id="footer-text">賽博龐克風格</span> <span class="inline-block text-lg">〰️</span></p>
+     <p class="text-cyan-300 text-xs mt-2" id="current-time"></p>
+    </div>
+   </div><!-- 版本資訊 -->
+   <p class="mt-6 text-cyan-400/70 text-sm font-mono">[ SYSTEM v2.0-CYBER ] <span id="version-text">多國語言賽博龐克版</span> 〰️</p>
+  </main><!-- 通知容器 -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- JavaScript 邏輯區 -->
+  <script>
+    // ========== 語言資料庫 ==========
+    const languages = {
+      'zh-TW': {
+        flag: '🇹🇼',
+        name: '繁體中文',
+        hello: '你好，世界！',
+        greeting: '歡迎進入數位世界',
+        selectLang: '選擇你的語言',
+        speak: '語音播放',
+        copy: '複製文字',
+        theme: '更換主題',
+        fact: '趣味知識',
+        langs: '支援語言',
+        clicks: '點擊次數',
+        time: '停留秒數',
+        footer: '賽博龐克風格',
+        version: '多國語言賽博龐克版',
+        copied: '✅ 已複製到系統記憶體！',
+        themeChanged: '🎨 風格已更新！'
+      },
+      'zh-CN': {
+        flag: '🇨🇳',
+        name: '简体中文',
+        hello: '你好，世界！',
+        greeting: '欢迎进入数字世界',
+        selectLang: '选择你的语言',
+        speak: '语音播放',
+        copy: '复制文字',
+        theme: '更换主题',
+        fact: '趣味知识',
+        langs: '支持语言',
+        clicks: '点击次数',
+        time: '停留秒数',
+        footer: '赛博朋克风格',
+        version: '多国语言赛博朋克版',
+        copied: '✅ 已复制到系统记忆体！',
+        themeChanged: '🎨 风格已更新！'
+      },
+      'en': {
+        flag: '🇺🇸',
+        name: 'English',
+        hello: 'Hello, World!',
+        greeting: 'Welcome to the digital frontier',
+        selectLang: 'Choose your language',
+        speak: 'Speak',
+        copy: 'Copy',
+        theme: 'Theme',
+        fact: 'Fun Fact',
+        langs: 'Languages',
+        clicks: 'Clicks',
+        time: 'Seconds',
+        footer: 'Cyberpunk Style',
+        version: 'Multilingual Cyberpunk Edition',
+        copied: '✅ Copied to memory!',
+        themeChanged: '🎨 Theme updated!'
+      },
+      'ja': {
+        flag: '🇯🇵',
+        name: '日本語',
+        hello: 'こんにちは、世界！',
+        greeting: 'デジタルの世界へようこそ',
+        selectLang: '言語を選択',
+        speak: '読み上げ',
+        copy: 'コピー',
+        theme: 'テーマ',
+        fact: '豆知識',
+        langs: '言語数',
+        clicks: 'クリック',
+        time: '秒数',
+        footer: 'サイバーパンク風',
+        version: '多言語サイバーパンク版',
+        copied: '✅ メモリにコピーしました！',
+        themeChanged: '🎨 テーマを更新しました！'
+      },
+      'ko': {
+        flag: '🇰🇷',
+        name: '한국어',
+        hello: '안녕, 세상아!',
+        greeting: '디지털 세계에 오신 것을 환영합니다',
+        selectLang: '언어 선택',
+        speak: '음성',
+        copy: '복사',
+        theme: '테마',
+        fact: '재미있는 사실',
+        langs: '지원 언어',
+        clicks: '클릭 수',
+        time: '체류 시간',
+        footer: '사이버펑크 스타일',
+        version: '다국어 사이버펑크 버전',
+        copied: '✅ 메모리에 복사됨!',
+        themeChanged: '🎨 테마 업데이트!'
+      },
+      'es': {
+        flag: '🇪🇸',
+        name: 'Español',
+        hello: '¡Hola, Mundo!',
+        greeting: 'Bienvenido al mundo digital',
+        selectLang: 'Elige tu idioma',
+        speak: 'Hablar',
+        copy: 'Copiar',
+        theme: 'Tema',
+        fact: 'Curiosidad',
+        langs: 'Idiomas',
+        clicks: 'Clics',
+        time: 'Segundos',
+        footer: 'Estilo Ciberpunk',
+        version: 'Edición multilingüe ciberpunk',
+        copied: '✅ ¡Copiado a la memoria!',
+        themeChanged: '🎨 ¡Tema actualizado!'
+      },
+      'fr': {
+        flag: '🇫🇷',
+        name: 'Français',
+        hello: 'Bonjour, le Monde!',
+        greeting: 'Bienvenue dans le monde numérique',
+        selectLang: 'Choisissez votre langue',
+        speak: 'Parler',
+        copy: 'Copier',
+        theme: 'Thème',
+        fact: 'Anecdote',
+        langs: 'Langues',
+        clicks: 'Clics',
+        time: 'Secondes',
+        footer: 'Style Cyberpunk',
+        version: 'Édition multilingue cyberpunk',
+        copied: '✅ Copié en mémoire!',
+        themeChanged: '🎨 Thème mis à jour!'
+      },
+      'de': {
+        flag: '🇩🇪',
+        name: 'Deutsch',
+        hello: 'Hallo, Welt!',
+        greeting: 'Willkommen in der digitalen Welt',
+        selectLang: 'Wähle deine Sprache',
+        speak: 'Sprechen',
+        copy: 'Kopieren',
+        theme: 'Thema',
+        fact: 'Wissenswertes',
+        langs: 'Sprachen',
+        clicks: 'Klicks',
+        time: 'Sekunden',
+        footer: 'Cyberpunk-Stil',
+        version: 'Mehrsprachige Cyberpunk-Edition',
+        copied: '✅ In Speicher kopiert!',
+        themeChanged: '🎨 Thema aktualisiert!'
+      },
+      'pt': {
+        flag: '🇧🇷',
+        name: 'Português',
+        hello: 'Olá, Mundo!',
+        greeting: 'Bem-vindo ao mundo digital',
+        selectLang: 'Escolha seu idioma',
+        speak: 'Falar',
+        copy: 'Copiar',
+        theme: 'Tema',
+        fact: 'Curiosidade',
+        langs: 'Idiomas',
+        clicks: 'Cliques',
+        time: 'Segundos',
+        footer: 'Estilo Ciberpunk',
+        version: 'Edição multilíngue ciberpunk',
+        copied: '✅ Copiado para a memória!',
+        themeChanged: '🎨 Tema atualizado!'
+      },
+      'it': {
+        flag: '🇮🇹',
+        name: 'Italiano',
+        hello: 'Ciao, Mondo!',
+        greeting: 'Benvenuto nel mondo digitale',
+        selectLang: 'Scegli la tua lingua',
+        speak: 'Parla',
+        copy: 'Copia',
+        theme: 'Tema',
+        fact: 'Curiosità',
+        langs: 'Lingue',
+        clicks: 'Clic',
+        time: 'Secondi',
+        footer: 'Stile Cyberpunk',
+        version: 'Edizione multilingue cyberpunk',
+        copied: '✅ Copiato in memoria!',
+        themeChanged: '🎨 Tema aggiornato!'
+      },
+      'ru': {
+        flag: '🇷🇺',
+        name: 'Русский',
+        hello: 'Привет, Мир!',
+        greeting: 'Добро пожаловать в цифровой мир',
+        selectLang: 'Выберите язык',
+        speak: 'Озвучить',
+        copy: 'Копировать',
+        theme: 'Тема',
+        fact: 'Интересный факт',
+        langs: 'Языки',
+        clicks: 'Клики',
+        time: 'Секунды',
+        footer: 'Киберпанк-стиль',
+        version: 'Многоязычная киберпанк-версия',
+        copied: '✅ Скопировано в память!',
+        themeChanged: '🎨 Тема обновлена!'
+      },
+      'ar': {
+        flag: '🇸🇦',
+        name: 'العربية',
+        hello: 'مرحباً، أيها العالم!',
+        greeting: 'أهلا بك في العالم الرقمي',
+        selectLang: 'اختر لغتك',
+        speak: 'نطق',
+        copy: 'نسخ',
+        theme: 'سمة',
+        fact: 'معلومة',
+        langs: 'اللغات',
+        clicks: 'النقرات',
+        time: 'الثواني',
+        footer: 'أسلوب سايبر بانك',
+        version: 'الإصدار متعدد اللغات سايبر بانك',
+        copied: '✅ تم النسخ إلى الذاكرة!',
+        themeChanged: '🎨 تم تحديث السمة!'
+      }
+    };
+
+    // ========== 趣味知識資料庫 ==========
+    const funFacts = {
+      'zh-TW': [
+        '💾 "Hello World" 最早出現在 1972 年的 C 語言教科書中！',
+        '🌐 全世界有超過 7000 種語言，但只有約 23 種語言涵蓋了全球一半人口！',
+        '👩‍💻 第一個電腦程式是由 Ada Lovelace 在 1843 年撰寫的！',
+        '⚡ 世界上最多人使用的程式語言是 JavaScript！',
+        '🤖 AI 將在 2030 年創造 300 百萬個新工作機會！'
+      ],
+      'en': [
+        '💾 "Hello World" first appeared in a C programming textbook in 1972!',
+        '🌐 There are over 7000 languages in the world!',
+        '👩‍💻 The first computer program was written by Ada Lovelace in 1843!',
+        '⚡ JavaScript is the most widely used programming language!',
+        '🤖 AI will create 300 million new jobs by 2030!'
+      ]
+    };
+
+    // ========== 主題配色 ==========
+    const themes = [
+      { name: 'cyan-magenta', colors: ['#0a0e27', '#16213e', '#0f3460', '#00ffff', '#ff00ff'] },
+      { name: 'neon-green', colors: ['#0a0e27', '#1a1a2e', '#16213e', '#00ff00', '#0088ff'] },
+      { name: 'synthwave', colors: ['#2d0645', '#0a0e27', '#ff00ff', '#00ffff', '#ffa600'] },
+      { name: 'terminal', colors: ['#000000', '#0a0e27', '#00ff00', '#00ffff', '#333333'] },
+      { name: 'dark-neon', colors: ['#0a0e27', '#16213e', '#2a2a4a', '#ff00ff', '#00ffff'] }
+    ];
+
+    // ========== 應用程式狀態 ==========
+    let currentLang = 'zh-TW';
+    let clickCount = 0;
+    let secondsOnPage = 0;
+    let currentThemeIndex = 0;
+
+    // ========== 預設配置 ==========
+    const defaultConfig = {
+      custom_name: '',
+      primary_color: '#00ffff',
+      secondary_color: '#ff00ff',
+      background_color: '#0a0e27',
+      text_color: '#00ffff',
+      accent_color: '#00ff00',
+      font_family: 'Courier New',
+      font_size: 16
+    };
+
+    // ========== 初始化函式 ==========
+    function init() {
+      createBubbles();
+      renderLanguageButtons();
+      updateTime();
+      setInterval(updateTime, 1000);
+      setInterval(() => {
+        secondsOnPage++;
+        updateCounter('counter-time', secondsOnPage);
+      }, 1000);
+
+      // 追蹤全域點擊
+      document.addEventListener('click', () => {
+        clickCount++;
+        updateCounter('counter-clicks', clickCount);
+      });
+
+      // 更新語言數量
+      document.getElementById('counter-langs').textContent = Object.keys(languages).length;
+
+      // 初始化 Element SDK
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            const name = config.custom_name || defaultConfig.custom_name;
+            if (name) {
+              const lang = languages[currentLang];
+              document.getElementById('personal-greeting').textContent = 
+                `${lang.greeting}，${name}！`;
+            }
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (value) => {
+                  config.primary_color = value;
+                  window.elementSdk.setConfig({ primary_color: value });
+                }
+              },
+              {
+                get: () => config.secondary_color || defaultConfig.secondary_color,
+                set: (value) => {
+                  config.secondary_color = value;
+                  window.elementSdk.setConfig({ secondary_color: value });
+                }
+              },
+              {
+                get: () => config.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  config.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (value) => {
+                config.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (value) => {
+                config.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              }
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['custom_name', config.custom_name || defaultConfig.custom_name]
+          ])
+        });
+      }
+    }
+
+    // ========== 建立浮動粒子 ==========
+    function createBubbles() {
+      const container = document.getElementById('bubbles-container');
+      const colors = ['#00ffff', '#ff00ff', '#00ff00', '#ffff00', '#0088ff'];
+      
+      for (let i = 0; i < 15; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 60 + 20;
+        bubble.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          color: ${colors[Math.floor(Math.random() * colors.length)]};
+          animation-delay: ${Math.random() * 5}s;
+          animation-duration: ${Math.random() * 5 + 5}s;
+        `;
+        container.appendChild(bubble);
+      }
+    }
+
+    // ========== 渲染語言按鈕 ==========
+    function renderLanguageButtons() {
+      const container = document.getElementById('lang-buttons');
+      container.innerHTML = '';
+      
+      Object.entries(languages).forEach(([code, lang]) => {
+        const btn = document.createElement('button');
+        btn.className = `lang-btn px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+          code === currentLang 
+            ? 'active' 
+            : ''
+        }`;
+        btn.innerHTML = `${lang.flag} ${lang.name}`;
+        btn.onclick = () => changeLanguage(code);
+        container.appendChild(btn);
+      });
+    }
+
+    // ========== 切換語言 ==========
+    function changeLanguage(langCode) {
+      currentLang = langCode;
+      const lang = languages[langCode];
+      
+      // 更新介面文字
+      document.getElementById('hello-title').textContent = lang.hello;
+      document.getElementById('personal-greeting').textContent = lang.greeting;
+      document.getElementById('select-lang-text').textContent = lang.selectLang;
+      document.getElementById('btn-speak').textContent = lang.speak;
+      document.getElementById('btn-copy').textContent = lang.copy;
+      document.getElementById('btn-theme').textContent = lang.theme;
+      document.getElementById('btn-fact').textContent = lang.fact;
+      document.getElementById('stat-langs').textContent = lang.langs;
+      document.getElementById('stat-clicks').textContent = lang.clicks;
+      document.getElementById('stat-time').textContent = lang.time;
+      document.getElementById('footer-text').textContent = lang.footer;
+      document.getElementById('version-text').textContent = lang.version;
+      
+      // 更新語言按鈕狀態
+      renderLanguageButtons();
+      
+      // 隱藏趣味知識
+      document.getElementById('fact-display').classList.add('hidden');
+    }
+
+    // ========== 語音播放 ==========
+    function speakHello() {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(languages[currentLang].hello);
+        
+        // 設定語言
+        const langMap = {
+          'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN', 'en': 'en-US', 'ja': 'ja-JP',
+          'ko': 'ko-KR', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
+          'pt': 'pt-BR', 'it': 'it-IT', 'ru': 'ru-RU', 'ar': 'ar-SA'
+        };
+        utterance.lang = langMap[currentLang] || 'en-US';
+        utterance.rate = 0.9;
+        speechSynthesis.speak(utterance);
+        
+        showToast('🔊', languages[currentLang].hello);
+      }
+    }
+
+    // ========== 複製到剪貼簿 ==========
+    async function copyToClipboard() {
+      const text = languages[currentLang].hello;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('📋', languages[currentLang].copied);
+      } catch (err) {
+        // 備用方法
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('📋', languages[currentLang].copied);
+      }
+    }
+
+    // ========== 更換主題 ==========
+    function changeTheme() {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      const theme = themes[currentThemeIndex];
+      
+      document.body.style.background = `linear-gradient(135deg, ${theme.colors.join(', ')})`;
+      document.body.style.backgroundSize = '400% 400%';
+      
+      showToast('🎨', languages[currentLang].themeChanged);
+    }
+
+    // ========== 顯示趣味知識 ==========
+    function showRandomFact() {
+      const facts = funFacts[currentLang] || funFacts['en'];
+      const randomFact = facts[Math.floor(Math.random() * facts.length)];
+      
+      const factDisplay = document.getElementById('fact-display');
+      const factText = document.getElementById('fact-text');
+      
+      factText.textContent = randomFact;
+      factDisplay.classList.remove('hidden');
+      
+      // 5 秒後自動隱藏
+      setTimeout(() => {
+        factDisplay.classList.add('hidden');
+      }, 5000);
+    }
+
+    // ========== 更新時間顯示 ==========
+    function updateTime() {
+      const now = new Date();
+      const options = { 
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      };
+      document.getElementById('current-time').textContent = now.toLocaleDateString(currentLang, options);
+    }
+
+    // ========== 更新計數器 ==========
+    function updateCounter(id, value) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+
+    // ========== 顯示通知 ==========
+    function showToast(icon, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast rounded-xl px-4 py-3 flex items-center gap-2';
+      toast.innerHTML = `<span class="text-xl">${icon}</span><span class="text-sm font-medium">${message}</span>`;
+      container.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ========== 啟動應用程式 ==========
+    init();
+  </script>
+  <style>
+    /* === 基礎設定 === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+      background: #0a0e27;
+    }
+
+    /* === 賽博龐克背景動畫 === */
+    .gradient-bg {
+      background: linear-gradient(135deg, #0a0e27 0%, #16213e 25%, #0f3460 50%, #16213e 75%, #0a0e27 100%);
+      background-size: 400% 400%;
+      animation: cyberpunkShift 20s ease infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-bg::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 255, 255, 0.03),
+          rgba(0, 255, 255, 0.03) 1px,
+          transparent 1px,
+          transparent 2px
+        );
+      pointer-events: none;
+      animation: scanlines 8s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes cyberpunkShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(10px); }
+    }
+
+    /* === 浮動霓虹粒子 === */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: floatBubble 8s ease-in-out infinite;
+      box-shadow: 0 0 20px currentColor, inset 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+
+    @keyframes floatBubble {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(180deg); }
+    }
+
+    /* === 主標題動畫 === */
+    .hello-text {
+      animation: glitchText 0.8s ease-out, flickerGlow 3s ease-in-out infinite;
+      animation-delay: 0s, 0.8s;
+      text-shadow: 
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 30px #ff00ff,
+        0 0 40px #ff00ff,
+        0 0 50px #0088ff;
+      letter-spacing: 2px;
+    }
+
+    @keyframes glitchText {
+      0% { transform: translate(0); opacity: 0; }
+      50% { transform: translate(-3px, 3px); }
+      100% { transform: translate(0); opacity: 1; }
+    }
+
+    @keyframes flickerGlow {
+      0%, 100% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #ff00ff; }
+      50% { text-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff, 0 0 20px #0088ff; }
+    }
+
+    /* === 賽博龐克卡片效果 === */
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid #00ffff;
+      background: rgba(16, 52, 96, 0.6);
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.1),
+        0 0 40px rgba(255, 0, 255, 0.1);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-8px);
+      border-color: #ff00ff;
+      box-shadow: 
+        0 0 30px rgba(255, 0, 255, 0.5),
+        inset 0 0 30px rgba(0, 255, 255, 0.2),
+        0 0 60px rgba(255, 0, 255, 0.3);
+    }
+
+    /* === 霓虹按鈕效果 === */
+    .lang-btn {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #00ffff;
+      background: rgba(0, 255, 255, 0.1);
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .lang-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(0, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
+    .lang-btn:hover::before {
+      width: 200%;
+      height: 200%;
+    }
+
+    .lang-btn:hover {
+      border-color: #ff00ff;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 10px rgba(0, 255, 255, 0.2);
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+    }
+
+    .lang-btn.active {
+      transform: scale(1.1);
+      border-color: #ff00ff;
+      background: rgba(255, 0, 255, 0.2);
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), inset 0 0 15px rgba(255, 0, 255, 0.3);
+      color: #ff00ff;
+      text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
+    }
+
+    /* === 功能按鈕樣式 === */
+    .feature-btn {
+      transition: all 0.3s ease;
+      border: 2px solid;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-btn:nth-child(1) {
+      border-color: #ff0080;
+      color: #ff0080;
+      box-shadow: 0 0 15px rgba(255, 0, 128, 0.3), inset 0 0 10px rgba(255, 0, 128, 0.1);
+      text-shadow: 0 0 10px #ff0080;
+    }
+
+    .feature-btn:nth-child(2) {
+      border-color: #00ffff;
+      color: #00ffff;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .feature-btn:nth-child(3) {
+      border-color: #ffff00;
+      color: #ffff00;
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.3), inset 0 0 10px rgba(255, 255, 0, 0.1);
+      text-shadow: 0 0 10px #ffff00;
+    }
+
+    .feature-btn:nth-child(4) {
+      border-color: #00ff00;
+      color: #00ff00;
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.3), inset 0 0 10px rgba(0, 255, 0, 0.1);
+      text-shadow: 0 0 10px #00ff00;
+    }
+
+    .feature-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .feature-btn:active {
+      transform: translateY(0);
+    }
+
+    /* === 通知提示樣式 === */
+    .toast {
+      animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+      border: 2px solid #00ffff;
+      background: rgba(10, 14, 39, 0.95);
+      color: #00ffff;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      text-shadow: 0 0 5px #00ffff;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    /* === 星星閃爍 === */
+    .star {
+      animation: cyberpunkTwinkle 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 10px #ff00ff);
+    }
+
+    @keyframes cyberpunkTwinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+    }
+
+    /* === 計數器數字動畫 === */
+    .counter-num {
+      transition: all 0.3s ease;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+
+    .counter-num.bump {
+      animation: bump 0.3s ease;
+    }
+
+    @keyframes bump {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    /* === 統計區背景 === */
+    .stats-box {
+      border: 2px solid #00ffff;
+      background: rgba(0, 255, 255, 0.05);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2), inset 0 0 15px rgba(0, 255, 255, 0.1);
+    }
+
+    /* === 趣味知識背景 === */
+    .fact-box {
+      border: 2px solid #00ff00;
+      background: rgba(0, 255, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.2), inset 0 0 15px rgba(0, 255, 0, 0.1);
+      color: #00ff00;
+      text-shadow: 0 0 5px #00ff00;
+    }
+
+    /* === 文字基礎樣式 === */
+    .neon-text {
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script><!-- ==================== HTML 結構區 ==================== --> <!-- 浮動裝飾泡泡 -->
+  <div id="bubbles-container" class="fixed inset-0 pointer-events-none overflow-hidden"></div><!-- 主容器 -->
+  <main class="relative z-10 min-h-full w-full flex flex-col items-center justify-center p-4 sm:p-8 overflow-auto"><!-- 主卡片 -->
+   <div class="card-hover bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-10 max-w-2xl w-full"><!-- 頂部裝飾 -->
+    <div class="flex justify-center gap-2 mb-6"><span class="star text-2xl" style="animation-delay: 0s;">✨</span> <span class="star text-2xl" style="animation-delay: 0.3s;">⭐</span> <span class="star text-2xl" style="animation-delay: 0.6s;">✨</span>
+    </div><!-- 主標題 -->
+    <h1 id="hello-title" class="hello-text text-4xl sm:text-6xl font-extrabold text-center mb-4 neon-text">你好，世界！</h1><!-- 個人化問候 -->
+    <p id="greeting-text" class="text-center text-cyan-300 text-lg mb-6"><span class="inline-block text-xl">⚡</span> <span id="personal-greeting">歡迎進入數位世界</span> <span class="inline-block text-xl">⚡</span></p><!-- 語言選擇區 -->
+    <div class="mb-8">
+     <p class="text-center text-cyan-400 text-sm mb-3 neon-text" id="select-lang-text">選擇你的語言</p>
+     <div id="lang-buttons" class="flex flex-wrap justify-center gap-2 sm:gap-3"><!-- 語言按鈕由 JavaScript 動態生成 -->
+     </div>
+    </div><!-- 功能區 -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"><button onclick="speakHello()" class="feature-btn bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">🔊</span> <span class="text-xs font-semibold" id="btn-speak">語音播放</span> </button> <button onclick="copyToClipboard()" class="feature-btn bg-gradient-to-r from-blue-400 to-cyan-400 text-white rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">📋</span> <span class="text-xs font-semibold" id="btn-copy">複製文字</span> </button> <button onclick="changeTheme()" class="feature-btn bg-gradient-to-r from-purple-400 to-indigo-400 text-white rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">🎨</span> <span class="text-xs font-semibold" id="btn-theme">更換主題</span> </button> <button onclick="showRandomFact()" class="feature-btn bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-xl p-3 shadow-lg"> <span class="text-2xl block mb-1">💡</span> <span class="text-xs font-semibold" id="btn-fact">趣味知識</span> </button>
+    </div><!-- 統計區 -->
+    <div class="bg-gradient-to-r from-rose-100 to-teal-100 rounded-2xl p-4 mb-6">
+     <div class="grid grid-cols-3 gap-4 text-center">
+      <div>
+       <p id="counter-langs" class="counter-num text-2xl sm:text-3xl font-bold text-rose-500">12</p>
+       <p class="text-xs text-gray-600" id="stat-langs">支援語言</p>
+      </div>
+      <div>
+       <p id="counter-clicks" class="counter-num text-2xl sm:text-3xl font-bold text-teal-500">0</p>
+       <p class="text-xs text-gray-600" id="stat-clicks">點擊次數</p>
+      </div>
+      <div>
+       <p id="counter-time" class="counter-num text-2xl sm:text-3xl font-bold text-purple-500">0</p>
+       <p class="text-xs text-gray-600" id="stat-time">停留秒數</p>
+      </div>
+     </div>
+    </div><!-- 趣味知識顯示區 -->
+    <div id="fact-display" class="hidden bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mb-6">
+     <p class="text-yellow-800 text-sm" id="fact-text"></p>
+    </div><!-- 底部資訊 -->
+    <div class="text-center">
+     <p class="text-gray-400 text-sm"><span id="footer-text">用愛與程式碼打造</span> <span class="heart-float inline-block text-red-400">❤️</span></p>
+     <p class="text-gray-300 text-xs mt-2" id="current-time"></p>
+    </div>
+   </div><!-- 版本資訊 -->
+   <p class="mt-6 text-white/70 text-sm font-medium">Hello World v2.0 ✨ <span id="version-text">多國語言溫馨版</span></p>
+  </main><!-- 通知容器 -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- ==================== JavaScript 邏輯區 ==================== -->
+  <script>
+    // ========== 語言資料庫 ==========
+    const languages = {
+      'zh-TW': {
+        flag: '🇹🇼',
+        name: '繁體中文',
+        hello: '你好，世界！',
+        greeting: '歡迎來到這個溫馨的小天地',
+        selectLang: '選擇你的語言',
+        speak: '語音播放',
+        copy: '複製文字',
+        theme: '更換主題',
+        fact: '趣味知識',
+        langs: '支援語言',
+        clicks: '點擊次數',
+        time: '停留秒數',
+        footer: '用愛與程式碼打造',
+        version: '多國語言溫馨版',
+        copied: '已複製到剪貼簿！',
+        themeChanged: '主題已更換！'
+      },
+      'zh-CN': {
+        flag: '🇨🇳',
+        name: '简体中文',
+        hello: '你好，世界！',
+        greeting: '欢迎来到这个温馨的小天地',
+        selectLang: '选择你的语言',
+        speak: '语音播放',
+        copy: '复制文字',
+        theme: '更换主题',
+        fact: '趣味知识',
+        langs: '支持语言',
+        clicks: '点击次数',
+        time: '停留秒数',
+        footer: '用爱与代码打造',
+        version: '多国语言温馨版',
+        copied: '已复制到剪贴板！',
+        themeChanged: '主题已更换！'
+      },
+      'en': {
+        flag: '🇺🇸',
+        name: 'English',
+        hello: 'Hello, World!',
+        greeting: 'Welcome to this cozy little corner',
+        selectLang: 'Choose your language',
+        speak: 'Speak',
+        copy: 'Copy',
+        theme: 'Theme',
+        fact: 'Fun Fact',
+        langs: 'Languages',
+        clicks: 'Clicks',
+        time: 'Seconds',
+        footer: 'Made with love & code',
+        version: 'Multilingual Cozy Edition',
+        copied: 'Copied to clipboard!',
+        themeChanged: 'Theme changed!'
+      },
+      'ja': {
+        flag: '🇯🇵',
+        name: '日本語',
+        hello: 'こんにちは、世界！',
+        greeting: 'この温かい場所へようこそ',
+        selectLang: '言語を選択',
+        speak: '読み上げ',
+        copy: 'コピー',
+        theme: 'テーマ',
+        fact: '豆知識',
+        langs: '言語数',
+        clicks: 'クリック',
+        time: '秒数',
+        footer: '愛とコードで作成',
+        version: '多言語あったか版',
+        copied: 'クリップボードにコピーしました！',
+        themeChanged: 'テーマを変更しました！'
+      },
+      'ko': {
+        flag: '🇰🇷',
+        name: '한국어',
+        hello: '안녕, 세상아!',
+        greeting: '이 따뜻한 공간에 오신 것을 환영합니다',
+        selectLang: '언어 선택',
+        speak: '음성',
+        copy: '복사',
+        theme: '테마',
+        fact: '재미있는 사실',
+        langs: '지원 언어',
+        clicks: '클릭 수',
+        time: '체류 시간',
+        footer: '사랑과 코드로 제작',
+        version: '다국어 따뜻한 버전',
+        copied: '클립보드에 복사되었습니다!',
+        themeChanged: '테마가 변경되었습니다!'
+      },
+      'es': {
+        flag: '🇪🇸',
+        name: 'Español',
+        hello: '¡Hola, Mundo!',
+        greeting: 'Bienvenido a este acogedor rincón',
+        selectLang: 'Elige tu idioma',
+        speak: 'Hablar',
+        copy: 'Copiar',
+        theme: 'Tema',
+        fact: 'Curiosidad',
+        langs: 'Idiomas',
+        clicks: 'Clics',
+        time: 'Segundos',
+        footer: 'Hecho con amor y código',
+        version: 'Edición multilingüe acogedora',
+        copied: '¡Copiado al portapapeles!',
+        themeChanged: '¡Tema cambiado!'
+      },
+      'fr': {
+        flag: '🇫🇷',
+        name: 'Français',
+        hello: 'Bonjour, le Monde!',
+        greeting: 'Bienvenue dans ce coin chaleureux',
+        selectLang: 'Choisissez votre langue',
+        speak: 'Parler',
+        copy: 'Copier',
+        theme: 'Thème',
+        fact: 'Anecdote',
+        langs: 'Langues',
+        clicks: 'Clics',
+        time: 'Secondes',
+        footer: 'Fait avec amour et code',
+        version: 'Édition multilingue chaleureuse',
+        copied: 'Copié dans le presse-papiers!',
+        themeChanged: 'Thème changé!'
+      },
+      'de': {
+        flag: '🇩🇪',
+        name: 'Deutsch',
+        hello: 'Hallo, Welt!',
+        greeting: 'Willkommen in dieser gemütlichen Ecke',
+        selectLang: 'Wähle deine Sprache',
+        speak: 'Sprechen',
+        copy: 'Kopieren',
+        theme: 'Thema',
+        fact: 'Wissenswertes',
+        langs: 'Sprachen',
+        clicks: 'Klicks',
+        time: 'Sekunden',
+        footer: 'Mit Liebe und Code gemacht',
+        version: 'Mehrsprachige gemütliche Ausgabe',
+        copied: 'In die Zwischenablage kopiert!',
+        themeChanged: 'Thema geändert!'
+      },
+      'pt': {
+        flag: '🇧🇷',
+        name: 'Português',
+        hello: 'Olá, Mundo!',
+        greeting: 'Bem-vindo a este cantinho acolhedor',
+        selectLang: 'Escolha seu idioma',
+        speak: 'Falar',
+        copy: 'Copiar',
+        theme: 'Tema',
+        fact: 'Curiosidade',
+        langs: 'Idiomas',
+        clicks: 'Cliques',
+        time: 'Segundos',
+        footer: 'Feito com amor e código',
+        version: 'Edição multilíngue acolhedora',
+        copied: 'Copiado para a área de transferência!',
+        themeChanged: 'Tema alterado!'
+      },
+      'it': {
+        flag: '🇮🇹',
+        name: 'Italiano',
+        hello: 'Ciao, Mondo!',
+        greeting: 'Benvenuto in questo angolo accogliente',
+        selectLang: 'Scegli la tua lingua',
+        speak: 'Parla',
+        copy: 'Copia',
+        theme: 'Tema',
+        fact: 'Curiosità',
+        langs: 'Lingue',
+        clicks: 'Clic',
+        time: 'Secondi',
+        footer: 'Fatto con amore e codice',
+        version: 'Edizione multilingue accogliente',
+        copied: 'Copiato negli appunti!',
+        themeChanged: 'Tema cambiato!'
+      },
+      'ru': {
+        flag: '🇷🇺',
+        name: 'Русский',
+        hello: 'Привет, Мир!',
+        greeting: 'Добро пожаловать в этот уютный уголок',
+        selectLang: 'Выберите язык',
+        speak: 'Озвучить',
+        copy: 'Копировать',
+        theme: 'Тема',
+        fact: 'Интересный факт',
+        langs: 'Языки',
+        clicks: 'Клики',
+        time: 'Секунды',
+        footer: 'Сделано с любовью и кодом',
+        version: 'Многоязычная уютная версия',
+        copied: 'Скопировано в буфер обмена!',
+        themeChanged: 'Тема изменена!'
+      },
+      'ar': {
+        flag: '🇸🇦',
+        name: 'العربية',
+        hello: 'مرحباً، أيها العالم!',
+        greeting: 'مرحباً بك في هذا الركن الدافئ',
+        selectLang: 'اختر لغتك',
+        speak: 'نطق',
+        copy: 'نسخ',
+        theme: 'سمة',
+        fact: 'معلومة',
+        langs: 'اللغات',
+        clicks: 'النقرات',
+        time: 'الثواني',
+        footer: 'صُنع بحب وبرمجة',
+        version: 'إصدار متعدد اللغات دافئ',
+        copied: 'تم النسخ إلى الحافظة!',
+        themeChanged: 'تم تغيير السمة!'
+      }
+    };
+
+    // ========== 趣味知識資料庫 ==========
+    const funFacts = {
+      'zh-TW': [
+        '"Hello World" 最早出現在 1972 年的 C 語言教科書中！',
+        '全世界有超過 7000 種語言，但只有約 23 種語言涵蓋了全球一半人口的母語！',
+        '第一個電腦程式是由 Ada Lovelace 在 1843 年撰寫的！',
+        '世界上最多人使用的程式語言是 JavaScript！',
+        '一個擁抱可以讓你的心情好上 20%！'
+      ],
+      'en': [
+        '"Hello World" first appeared in a C programming textbook in 1972!',
+        'There are over 7000 languages in the world!',
+        'The first computer program was written by Ada Lovelace in 1843!',
+        'JavaScript is the most widely used programming language!',
+        'A hug can improve your mood by 20%!'
+      ]
+    };
+
+    // ========== 主題配色 ==========
+    const themes = [
+      { name: 'sunset', colors: ['#ffecd2', '#fcb69f', '#a8edea', '#fed6e3', '#d299c2'] },
+      { name: 'ocean', colors: ['#667eea', '#764ba2', '#66a6ff', '#89f7fe', '#c0c0aa'] },
+      { name: 'forest', colors: ['#134e5e', '#71b280', '#aa4b6b', '#6b6b83', '#3b8d99'] },
+      { name: 'candy', colors: ['#ff9a9e', '#fecfef', '#fecfef', '#a18cd1', '#fbc2eb'] },
+      { name: 'midnight', colors: ['#0f0c29', '#302b63', '#24243e', '#4a4e69', '#22223b'] }
+    ];
+
+    // ========== 應用程式狀態 ==========
+    let currentLang = 'zh-TW';
+    let clickCount = 0;
+    let secondsOnPage = 0;
+    let currentThemeIndex = 0;
+
+    // ========== 預設配置 ==========
+    const defaultConfig = {
+      custom_name: '',
+      primary_color: '#ff6b6b',
+      secondary_color: '#4ecdc4',
+      background_color: '#ffecd2',
+      text_color: '#333333',
+      accent_color: '#a8edea',
+      font_family: 'Nunito',
+      font_size: 16
+    };
+
+    // ========== 初始化函式 ==========
+    function init() {
+      createBubbles();
+      renderLanguageButtons();
+      updateTime();
+      setInterval(updateTime, 1000);
+      setInterval(() => {
+        secondsOnPage++;
+        updateCounter('counter-time', secondsOnPage);
+      }, 1000);
+
+      // 追蹤全域點擊
+      document.addEventListener('click', () => {
+        clickCount++;
+        updateCounter('counter-clicks', clickCount);
+      });
+
+      // 更新語言數量
+      document.getElementById('counter-langs').textContent = Object.keys(languages).length;
+
+      // 初始化 Element SDK
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            const name = config.custom_name || defaultConfig.custom_name;
+            if (name) {
+              const lang = languages[currentLang];
+              document.getElementById('personal-greeting').textContent = 
+                `${lang.greeting}，${name}！`;
+            }
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  config.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (value) => {
+                  config.primary_color = value;
+                  window.elementSdk.setConfig({ primary_color: value });
+                }
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  config.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (value) => {
+                config.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (value) => {
+                config.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              }
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['custom_name', config.custom_name || defaultConfig.custom_name]
+          ])
+        });
+      }
+    }
+
+    // ========== 建立浮動泡泡 ==========
+    function createBubbles() {
+      const container = document.getElementById('bubbles-container');
+      const colors = ['#ff9a9e', '#a8edea', '#ffecd2', '#d299c2', '#667eea'];
+      
+      for (let i = 0; i < 15; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 60 + 20;
+        bubble.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          animation-delay: ${Math.random() * 5}s;
+          animation-duration: ${Math.random() * 5 + 5}s;
+        `;
+        container.appendChild(bubble);
+      }
+    }
+
+    // ========== 渲染語言按鈕 ==========
+    function renderLanguageButtons() {
+      const container = document.getElementById('lang-buttons');
+      container.innerHTML = '';
+      
+      Object.entries(languages).forEach(([code, lang]) => {
+        const btn = document.createElement('button');
+        btn.className = `lang-btn px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+          code === currentLang 
+            ? 'active bg-gradient-to-r from-rose-400 to-pink-400 text-white shadow-lg' 
+            : 'bg-white/60 hover:bg-white text-gray-700 shadow'
+        }`;
+        btn.innerHTML = `${lang.flag} ${lang.name}`;
+        btn.onclick = () => changeLanguage(code);
+        container.appendChild(btn);
+      });
+    }
+
+    // ========== 切換語言 ==========
+    function changeLanguage(langCode) {
+      currentLang = langCode;
+      const lang = languages[langCode];
+      
+      // 更新介面文字
+      document.getElementById('hello-title').textContent = lang.hello;
+      document.getElementById('personal-greeting').textContent = lang.greeting;
+      document.getElementById('select-lang-text').textContent = lang.selectLang;
+      document.getElementById('btn-speak').textContent = lang.speak;
+      document.getElementById('btn-copy').textContent = lang.copy;
+      document.getElementById('btn-theme').textContent = lang.theme;
+      document.getElementById('btn-fact').textContent = lang.fact;
+      document.getElementById('stat-langs').textContent = lang.langs;
+      document.getElementById('stat-clicks').textContent = lang.clicks;
+      document.getElementById('stat-time').textContent = lang.time;
+      document.getElementById('footer-text').textContent = lang.footer;
+      document.getElementById('version-text').textContent = lang.version;
+      
+      // 更新語言按鈕狀態
+      renderLanguageButtons();
+      
+      // 隱藏趣味知識
+      document.getElementById('fact-display').classList.add('hidden');
+    }
+
+    // ========== 語音播放 ==========
+    function speakHello() {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(languages[currentLang].hello);
+        
+        // 設定語言
+        const langMap = {
+          'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN', 'en': 'en-US', 'ja': 'ja-JP',
+          'ko': 'ko-KR', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
+          'pt': 'pt-BR', 'it': 'it-IT', 'ru': 'ru-RU', 'ar': 'ar-SA'
+        };
+        utterance.lang = langMap[currentLang] || 'en-US';
+        utterance.rate = 0.9;
+        speechSynthesis.speak(utterance);
+        
+        showToast('🔊', languages[currentLang].hello);
+      }
+    }
+
+    // ========== 複製到剪貼簿 ==========
+    async function copyToClipboard() {
+      const text = languages[currentLang].hello;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('✅', languages[currentLang].copied);
+      } catch (err) {
+        // 備用方法
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('✅', languages[currentLang].copied);
+      }
+    }
+
+    // ========== 更換主題 ==========
+    function changeTheme() {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      const theme = themes[currentThemeIndex];
+      
+      document.body.style.background = `linear-gradient(-45deg, ${theme.colors.join(', ')})`;
+      document.body.style.backgroundSize = '400% 400%';
+      
+      showToast('🎨', languages[currentLang].themeChanged);
+    }
+
+    // ========== 顯示趣味知識 ==========
+    function showRandomFact() {
+      const facts = funFacts[currentLang] || funFacts['en'];
+      const randomFact = facts[Math.floor(Math.random() * facts.length)];
+      
+      const factDisplay = document.getElementById('fact-display');
+      const factText = document.getElementById('fact-text');
+      
+      factText.textContent = `💡 ${randomFact}`;
+      factDisplay.classList.remove('hidden');
+      
+      // 3 秒後自動隱藏
+      setTimeout(() => {
+        factDisplay.classList.add('hidden');
+      }, 5000);
+    }
+
+    // ========== 更新時間顯示 ==========
+    function updateTime() {
+      const now = new Date();
+      const options = { 
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      };
+      document.getElementById('current-time').textContent = now.toLocaleDateString(currentLang, options);
+    }
+
+    // ========== 更新計數器 ==========
+    function updateCounter(id, value) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+
+    // ========== 顯示通知 ==========
+    function showToast(icon, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast bg-white/95 backdrop-blur rounded-xl shadow-lg px-4 py-3 flex items-center gap-2';
+      toast.innerHTML = `<span class="text-xl">${icon}</span><span class="text-gray-700 text-sm font-medium">${message}</span>`;
+      container.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ========== 啟動應用程式 ==========
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d6cbfff42ef4a5a',t:'MTc3MjU4Mzk5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html><!-- ==================== CSS 樣式區 ==================== -->
